@@ -23,5 +23,8 @@
     <ClInclude Include="matrix.h">
       <Filter>Zdrojové soubory</Filter>
     </ClInclude>
+    <ClInclude Include="neural.h">
+      <Filter>Zdrojové soubory</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
