@@ -263,7 +263,7 @@ struct Image {
     void Frequencyfilter() {
         int centerX = CMatrixPix.getColumns() / 2;
         int centerY = CMatrixPix.getRows() / 2;
-        int radius = 50;
+        int radius = 15;
         int konst = 220;
         int radiusSquared = radius * radius;
 
@@ -292,13 +292,13 @@ struct Image {
                     CMatrixPix(i, j).b = 0;
                 }*/
 
-                /*
-                if (distanceSquared > radiusSquared) {
+                
+                if (distanceSquared < radiusSquared) {
                     CMatrixPix(i, j).r = 0;
                     CMatrixPix(i, j).g = 0;
                     CMatrixPix(i, j).b = 0;
                 }
-                */
+                
             }
         }
 
@@ -370,7 +370,7 @@ struct Image {
         newimage.close();
     }
 
-    void ImageIFFT(std::string ImageNameNew) {
+    void ImageIFFT(std::string ImageNameNew,int konst) {
            
         std::ofstream newimage1;
         newimage1.open(ImageNameNew);
@@ -382,9 +382,9 @@ struct Image {
         for (int i = 0; i < CMatrixPix.getRows(); i++) {
             for (int j = 0; j < CMatrixPix.getColumns(); j++) {
                 int r, g, b;
-                r = static_cast<int>(CMatrixPix(i, j).r.real());
-                g = static_cast<int>(CMatrixPix(i, j).g.real());
-                b = static_cast<int>(CMatrixPix(i, j).b.real());
+                r = static_cast<int>(CMatrixPix(i, j).r.real() / konst);
+                g = static_cast<int>(CMatrixPix(i, j).g.real() / konst);
+                b = static_cast<int>(CMatrixPix(i, j).b.real() / konst);
                 if (r > 255) { r = 255; }
                 if (g > 255) { g = 255; }
                 if (b > 255) { b = 255; }
@@ -488,14 +488,14 @@ struct Image {
                 bcMin = std::min(bcMin, static_cast<int>(matrix(i, j).b.imag()));
             }
         }
-
+        
         for (int i = 0; i < matrix.getRows(); i++) {
             for (int j = 0; j < matrix.getColumns(); j++) {
                 int r, g, b;
                 int rc, gc, bc;
-                r = static_cast<int>(((matrix(i, j).r.real() - rMin) / (rMax - rMin) * 255000)-48000);
-                g = static_cast<int>(((matrix(i, j).r.real() - rMin) / (rMax - rMin) * 255000) - 48000);
-                b = static_cast<int>(((matrix(i, j).r.real() - rMin) / (rMax - rMin) * 255000) - 48000);
+                r = static_cast<int>((matrix(i, j).r.real() - rMin) / (rMax - rMin) * 255);
+                g = static_cast<int>((matrix(i, j).r.real() - rMin) / (rMax - rMin) * 255);
+                b = static_cast<int>((matrix(i, j).r.real() - rMin) / (rMax - rMin) * 255);
                 /*if (r > 255) { r = 255; }
                 if (g > 255) { g = 255; }
                 if (b > 255) { b = 255; }*/
@@ -514,6 +514,83 @@ struct Image {
         newimage2.close();
     }
 
+    void MakePicturesFromMatrix3(std::string ImageNameNew1, std::string ImageNameNew2, Matrix<PixelC> matrix) {
+        int konst = 10;
+        std::ofstream newimage1;
+        std::ofstream newimage2;
+        newimage1.open(ImageNameNew1);
+        newimage2.open(ImageNameNew2);
+
+        newimage1 << type << std::endl;
+        newimage1 << width << " " << height << std::endl;
+        newimage1 << RGB << std::endl;
+
+        newimage2 << type << std::endl;
+        newimage2 << width << " " << height << std::endl;
+        newimage2 << RGB << std::endl;
+
+        double rMax = std::numeric_limits<double>::min(), gMax = std::numeric_limits<double>::min(), bMax = std::numeric_limits<double>::min();
+        double rMin = std::numeric_limits<double>::max(), gMin = std::numeric_limits<double>::max(), bMin = std::numeric_limits<double>::max();
+        double rcMax = std::numeric_limits<double>::min(), gcMax = std::numeric_limits<double>::min(), bcMax = std::numeric_limits<double>::min();
+        double rcMin = std::numeric_limits<double>::max(), gcMin = std::numeric_limits<double>::max(), bcMin = std::numeric_limits<double>::max();
+
+        // ... (rest of the code remains unchanged)
+
+        for (int i = 0; i < matrix.getRows(); i++) {
+            for (int j = 0; j < matrix.getColumns(); j++) {
+                // Update max and min values for real parts
+                rMax = std::max(rMax, matrix(i, j).r.real());
+                gMax = std::max(gMax, matrix(i, j).g.real());
+                bMax = std::max(bMax, matrix(i, j).b.real());
+
+                rMin = std::min(rMin, matrix(i, j).r.real());
+                gMin = std::min(gMin, matrix(i, j).g.real());
+                bMin = std::min(bMin, matrix(i, j).b.real());
+
+                // Update max and min values for imaginary parts
+                rcMax = std::max(rcMax, matrix(i, j).r.imag());
+                gcMax = std::max(gcMax, matrix(i, j).g.imag());
+                bcMax = std::max(bcMax, matrix(i, j).b.imag());
+
+                rcMin = std::min(rcMin, matrix(i, j).r.imag());
+                gcMin = std::min(gcMin, matrix(i, j).g.imag());
+                bcMin = std::min(bcMin, matrix(i, j).b.imag());
+            }
+        }
+
+        for (int i = 0; i < matrix.getRows(); i++) {
+            for (int j = 0; j < matrix.getColumns(); j++) {
+                int r, g, b;
+                int rc, gc, bc;
+
+                // Normalizing real part
+                double rNormalized = (matrix(i, j).r.real() - rMin) / (rMax - rMin) * 255.0;
+                double gNormalized = (matrix(i, j).g.real() - gMin) / (gMax - gMin) * 255.0;
+                double bNormalized = (matrix(i, j).b.real() - bMin) / (bMax - bMin) * 255.0;
+
+                // Extract fractional part
+                r = static_cast<int>((rNormalized - std::floor(rNormalized)) * 1000); // 1000 for three decimal digits
+                g = static_cast<int>((gNormalized - std::floor(gNormalized)) * 1000);
+                b = static_cast<int>((bNormalized - std::floor(bNormalized)) * 1000);
+
+                newimage1 << r << " " << g << " " << b << std::endl;
+
+                // Normalizing imaginary part
+                double rcNormalized = (matrix(i, j).r.imag() - rcMin) / (rcMax - rcMin) * 255.0;
+                double gcNormalized = (matrix(i, j).g.imag() - gcMin) / (gcMax - gcMin) * 255.0;
+                double bcNormalized = (matrix(i, j).b.imag() - bcMin) / (bcMax - bcMin) * 255.0;
+
+                // Extract fractional part
+                rc = static_cast<int>((rcNormalized - std::floor(rcNormalized)) * 1000);
+                gc = static_cast<int>((gcNormalized - std::floor(gcNormalized)) * 1000);
+                bc = static_cast<int>((bcNormalized - std::floor(bcNormalized)) * 1000);
+
+                newimage2 << rc << " " << gc << " " << bc << std::endl;
+            }
+        }
+        newimage1.close();
+        newimage2.close();
+    }
 
     void MakePicFromMatrix(std::string ImageNameNew, Matrix<Pixel>& matrix) {
         std::ofstream newimage;
