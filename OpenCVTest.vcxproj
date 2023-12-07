@@ -154,6 +154,8 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Convertor.h" />
+    <ClInclude Include="Image.h" />
     <ClInclude Include="matrix.h" />
     <ClInclude Include="neural.h" />
   </ItemGroup>

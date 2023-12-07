@@ -26,5 +26,11 @@
     <ClInclude Include="neural.h">
       <Filter>Zdrojové soubory</Filter>
     </ClInclude>
+    <ClInclude Include="Image.h">
+      <Filter>Zdrojové soubory</Filter>
+    </ClInclude>
+    <ClInclude Include="Convertor.h">
+      <Filter>Zdrojové soubory</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -43,6 +43,7 @@ public:
         data.resize(rows * cols);
     }
 
+
     void print() const
     {
         for (int i = 0;
@@ -52,7 +53,40 @@ public:
         std::cout << std::endl;
     }
 
-    void make0() {
+    std::vector<T> getIthRow(int i) const
+    {
+        std::vector<T> ret;
+        for(int w = 0; w < this->getColumns();++w)
+            ret.push_back(this->getData()[i * cols + w]);
+        return ret;
+    }
+
+    std::vector<T> getIthColumn(int i) const {
+        std::vector<T> ret;
+        for (int h = 0; h < this->getRows(); ++h)
+            ret.push_back(this->getData()[h * cols + i]);
+        return ret;
+    }
+
+    void setIthRow(int i, std::vector<T> dat)
+    {
+        for (int w = 0; w < this->getColumns(); ++w)
+            data[i*cols + w] = dat[w];
+    }
+
+    std::vector<T> operator[](int index) {
+        if (index < 0 || index >= rows) {
+            throw std::out_of_range("Index out of bounds");
+        }
+
+        std::vector<T> rowData;
+        for (int j = 0; j < cols; ++j) {
+            rowData.push_back(data[index * cols + j]);
+        }
+        return rowData;
+    }
+
+    void zeros() {
         for (int i = 0;
             i < this->getRows() * this->getColumns();
             i++)
@@ -84,6 +118,52 @@ public:
     {
         return data.data();
     }
+
+    int nearestPowerOf2(int n) const {
+        return pow(2, int(ceil(log2(n))));
+    }
+
+    // Function to resize matrix to the nearest power of 2
+    void resizeToNearestPowerOf2() {
+        int newRows = nearestPowerOf2(rows);
+        int newCols = nearestPowerOf2(cols);
+
+        std::vector<T> newData; // Create an empty vector
+
+        // Resize the vector to the required size
+        newData.resize(static_cast<size_t>(newRows * newCols));
+
+        for (int i = 0; i < std::min(rows, newRows); ++i) {
+            for (int j = 0; j < std::min(cols, newCols); ++j) {
+                newData[static_cast<size_t>(i * newCols + j)] = data[static_cast<size_t>(i * cols + j)];
+            }
+        }
+
+        data = std::move(newData);
+        rows = newRows;
+        cols = newCols;
+    }
+
+
+    void rescaleToOriginalSize(int originalRows, int originalCols) {
+        std::vector<T> newData; // Create an empty vector
+
+        // Resize the vector to the required size
+        newData.resize(static_cast<size_t>(originalRows * originalCols));
+
+        for (int i = 0; i < originalRows; ++i) {
+            for (int j = 0; j < originalCols; ++j) {
+                if (i < rows && j < cols) {
+                    newData[static_cast<size_t>(i * originalCols + j)] = data[static_cast<size_t>(i * cols + j)];
+                }
+            }
+        }
+
+        data = std::move(newData);
+        rows = originalRows;
+        cols = originalCols;
+    }
+
 };
 
 // operator* číslo
