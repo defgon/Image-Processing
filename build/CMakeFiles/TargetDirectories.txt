@@ -1,0 +1,3 @@
+/home/petr/Programka/ImageProcessing/build/CMakeFiles/ImageProcessing.dir
+/home/petr/Programka/ImageProcessing/build/CMakeFiles/edit_cache.dir
+/home/petr/Programka/ImageProcessing/build/CMakeFiles/rebuild_cache.dir
